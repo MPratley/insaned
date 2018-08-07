@@ -1,5 +1,7 @@
 #!/bin/sh
 
+beep
+
 # this event is tuned for Canon LiDE 210
 #
 # stops scanning of a multipage PDF document and cleans up lock files
