@@ -19,8 +19,9 @@
 
 const std::string InsaneDaemon::NAME = "insaned";
 
+//TODO: Add flag to change the timeout on launch
 const int InsaneDaemon::SKIP_TIMEOUT_MS = 2500;
-const int InsaneDaemon::BUSY_TIMEOUT_MS = 15000;
+const int InsaneDaemon::BUSY_TIMEOUT_MS = 5000;
 
 InsaneDaemon InsaneDaemon::mInstance;
 
