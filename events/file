@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+beep
 
 # this event is tuned for Canon LiDE 210
 #
@@ -8,21 +10,22 @@
 # - scanning of the current PDF document stops after pressing 'extra' button or 10 minutes after the last # page was scanned
 # - scanning of a multipage PDF document is not aborted if other buttons are pressed between pages # (e.g. copy)
 #
-# default settings: color image, 300 dpi, size A4, automatically deskew and despeckle
+# default settings: color image, 200 dpi, size A4, automatically deskew and despeckle
 # NOTE: these settings require 25 MB of disk space in /tmp per page
 #
 # dependencies:
 # libtiff-tools (tiff2pdf, tiffcp)
 
 # contrast and despeckle removes noise in mostly white documents and result in much smaller PDF size
-SCAN_SETTINGS="--mode color -x 210 -y 297 --contrast 18 --brightness 6 --swdeskew=yes --swcrop=no --swdespeck=yes --despeck 2 --resolution 300"
+SCAN_SETTINGS="--mode color -x 210 -y 297 --contrast 16 --brightness 6 --swdeskew=yes --swcrop=yes --swdespeck=yes --despeck 1 --resolution 150"
+#SCAN_SETTINGS="--mode color -x 210 -y 297 --contrast 0 --brightness 0 --swdeskew=yes --swcrop=no --swdespeck=no --resolution 1200 --lamp-off-scan=yes"
 
 # JPEG compression (-j) with quality (-q) 85 produces good quality at acceptable size, too small quality values can produce artefacts
-PDF_SETTINGS="-p A4 -j -q 85"
+PDF_SETTINGS="-p A4 -j -q 90"
 
 # output file settings
 PDF_TITLE="Scan $(date '+%Y-%m-%d %H:%M:%S')"
-OUTFILE="$HOME/scan-$(date '+%Y-%m-%d_%H-%M-%S').pdf"
+OUTFILE="$HOME/scans/scan-$(date '+%Y-%m-%d_%H-%M-%S').pdf"
 
 # during timeout (in seconds) after the last page was scanned, next scan will append another page
 # after the timeout, button 'file' will create a new PDF document even if button 'extra' was not pressed
@@ -31,7 +34,7 @@ TIMEOUT="600"
 
 # internal variables, don't change
 TMPFILE_PAGE="/tmp/multipage-scan-page.tiff"
-TMPFILE_ALL="/tmp/multipage-scan-all.tiff"
+TMPFILE_PAGE_PDF="/tmp/multipage-scan-page.pdf"
 LOCKFILE="/tmp/insaned-scan.lock"
 INSANED_LOGFILE="/tmp/insaned.log"
 DEVICE="$1"
@@ -47,8 +50,24 @@ MULTIPAGE_LOCK="/tmp/insaned-multipage.lock"
 # shellcheck disable=SC2086
 scanNextPage() {
     scanimage --device-name "$DEVICE" --format tiff $SCAN_SETTINGS > "$TMPFILE_PAGE"
-    tiffcp -a "$TMPFILE_PAGE" "$TMPFILE_ALL" >> "$INSANED_LOGFILE" 2>&1
-    tiff2pdf $PDF_SETTINGS -t "$PDF_TITLE" -F -o "$1" "$TMPFILE_ALL" >> "$INSANED_LOGFILE" 2>&1
+    tiff2pdf $PDF_SETTINGS -t "$PDF_TITLE" -F -o "$TMPFILE_PAGE_PDF" "$TMPFILE_PAGE" >> "$INSANED_LOGFILE" 2>&1
+    
+    #if[[ $(wc -l "$MULTIPAGE_LOCK") -eq 1 ]]; then
+
+#	if [[ $(wc -l <"$MULTIPAGE_LOCK") -eq 1 ]]; then
+	if [ ! -f "$1" ]; then	
+    #if [! -f "$1"]; then
+    	cp "$TMPFILE_PAGE_PDF" "$1"
+    	echo first page
+    else
+    	pdfunite "$1" "$TMPFILE_PAGE_PDF" "$1"tmp
+    	#gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/default -sOutputFile="$1"tmp "$1" "$TMPFILE_PAGE_PDF"
+    	mv "$1"tmp "$1"
+    	echo multipage
+    fi
+    
+    #tiffcp -a "$TMPFILE_PAGE" "$TMPFILE_ALL" >> "$INSANED_LOGFILE" 2>&1
+    #tiff2pdf $PDF_SETTINGS -t "$PDF_TITLE" -F -o "$1" "$TMPFILE_PAGE" >> "$INSANED_LOGFILE" 2>&1
 }
 
 
@@ -82,7 +101,7 @@ if [ ! -f "$MULTIPAGE_LOCK" ]; then
     echo "started scanning multipage document: $OUTFILE" >> "$INSANED_LOGFILE"
 
     # clean up previous pages
-    rm -f "$TMPFILE_PAGE" "$TMPFILE_ALL" >> "$INSANED_LOGFILE" 2>&1
+    rm -f "$TMPFILE_PAGE" "$TMPFILE_PAGE_PDF" >> "$INSANED_LOGFILE" 2>&1
 else
     # consequent press: MULTIPAGE_LOCK file exist
 
@@ -96,4 +115,6 @@ scanNextPage "$OUTFILE"
 
 # add timestamp to the MULTIPAGE_LOCK file
 date '+%s' >> "$MULTIPAGE_LOCK"
+
+#beep
 
