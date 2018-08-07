@@ -6,6 +6,7 @@
 TMPFILE="/tmp/scan.tiff"
 LOCKFILE="/tmp/insaned-scan.lock"
 INSANED_LOGFILE="/tmp/insaned.log"
+MULTIPAGE_LOCK="/tmp/insaned-multipage.lock"
 
 # shamelessly stolen from scanbuttond and modified for Canon LiDE 210 and Canon Pixma IP4000
 # respectively
@@ -26,12 +27,18 @@ finish() {
 trap finish EXIT
 touch "$LOCKFILE"
 
+beep
 
-rm -f "$TMPFILE" >/dev/null 2>&1
+if [ -f "$MULTIPAGE_LOCK" ]; then
+	#Print the current multipage document if there is one.
+	lpr "$(head -1 "$MULTIPAGE_LOCK")"
+else
+	rm -f "$TMPFILE" >/dev/null 2>&1
 
-# for Canon LiDE 210
-scanimage --device-name "$1" --format tiff --mode Gray \
-    -l 2 -t 0 -x 206 -y 293 --resolution 300 --contrast 18 --brightness 4 --swdespeck=yes --despeck 3 > "$TMPFILE"
+	# for Canon LiDE 210
+	scanimage --device-name "$1" --format tiff --mode Gray\
+    	-l 2 -t 0 -x 206 -y 293 --resolution 300 --contrast 18 --brightness 5 --swdespeck=yes --despeck 2 > "$TMPFILE"
 
-tiff2ps -c -w 8.11 -h 11.54 "$TMPFILE" | lpr >> "$INSANED_LOGFILE" 2>&1 &
+	tiff2ps -c -w 8.11 -h 11.54 "$TMPFILE" | lpr >> "$INSANED_LOGFILE" 2>&1 &
+fi
 
