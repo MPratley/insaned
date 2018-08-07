@@ -81,6 +81,14 @@ Dependencies
 * SANE library version 1.0.23 or later (tested with: 1.0.23 - 1.0.27)
 * Recent GCC with support for C++11 standard (tested with: 4.8.2, 5.4.0, 6.4.0)
 
+Extra dependencies for events
+-----------------------------
+
+* libtiff-tools
+* beep
+* poppler
+
+Obviously, you can rewrite events so these are all optional. 
 
 Installation
 ------------
