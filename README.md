@@ -1,9 +1,28 @@
-Insaned
-=======
+Insaned cloud scanning on raspberry pi
+======================================
 
-Insaned is a simple linux daemon for polling button presses on SANE scanners.
+ORIGINAL Insaned PROJECT [HERE](https://github.com/abusenius/insaned)
 
-[![Build Status](https://travis-ci.org/abusenius/insaned.svg?branch=master)](https://travis-ci.org/abusenius/insaned) [![Coverity Scan Build Status](https://scan.coverity.com/projects/11384/badge.svg)](https://scan.coverity.com/projects/abusenius-insaned)
+This repo is a WIP project to create a headless raspberry pi scanning station, specifically for the canoscan LiDE series of scanner. 
+
+It relies on a few extra programs, namely: 
+
+* insaned, which this is forked from
+* rclone for cloud upload
+* tesseract for auto-rotation of pages
+* SANE (obviously)
+
+and likely a few other things that'll come and go as I work on this.
+
+If you'd like to set up something similar on a different scanner, you could swap out insaned for a few hardware buttons hooked up by gpio.
+
+TODO:
+=====
+
+* Rewrite the events to allow image processing to run (mostly tesseract things) while the scanner works
+* Separate insaned functionality from the rest of the project for more awkward scanners
+* Migrate from scanimage to [pyinsane](https://gitlab.gnome.org/World/OpenPaperwork/pyinsane). Probably a part of item 1.
+
 
 Description
 -----------
@@ -139,20 +158,4 @@ Side note
 I am not responsible for any physical or mental damage insaned might cause to you, your hardware or your pet. Use it on your own risk.
 
 That said, any help is welcomed. Feel free to contact me if you have any comments/suggestions/patches. Especially interesting are reports if it works with another scanners. Please make sure to include the output of "insaned -L" to your report, and, if you have any problems, also the output of "scanimage -A".
-
-
-TODO
-----
-
-The following features are planned:
-
-* Package for raspbian
-* Suspend polling while one of the configured processes are running
-* Suspend polling while another process is using the SANE library
-* CMake build
-* Packages for other linux distributions
-* More useful handler scripts
-* Handler script stub for starting a GUI frontend
-* Run daemon as user daemon when logging into a KDE/Gnome/whatever
-* Test with more hardware
 
