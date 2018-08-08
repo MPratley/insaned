@@ -57,7 +57,7 @@ scanNextPage() {
     #TODO Get tesseract to run while the scanner runs. May require a total rewrite to replace scanimage and use pyinsane instead.
     tesseract "$TMPFILE_PAGE" - -psm 0 > "$TMPFILE_TESSERACT"
     rotate=$(grep -oP '(?<=Rotate: ).*' "$TMPFILE_TESSERACT")
-    tiffcrop -R "$(rotate)" "$TMPFILE_PAGE"
+    tiffcrop -R "$rotate" "$TMPFILE_PAGE"
     
     tiff2pdf $PDF_SETTINGS -t "$PDF_TITLE" -F -o "$TMPFILE_PAGE_PDF" "$TMPFILE_PAGE" >> "$INSANED_LOGFILE" 2>&1
     
