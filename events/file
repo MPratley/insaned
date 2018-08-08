@@ -55,7 +55,7 @@ scanNextPage() {
     
     #Tesseract auto rotation stuff. Causes a VERY large performance drop.
     #TODO Get tesseract to run while the scanner runs. May require a total rewrite to replace scanimage and use pyinsane instead.
-    tesseract "$TMPFILE_PAGE" "$TMPFILE_TESSERACT" -psm 0
+    tesseract "$TMPFILE_PAGE" - -psm 0 > "$TMPFILE_TESSERACT"
     rotate=$(grep -oP '(?<=Rotate: ).*' "$TMPFILE_TESSERACT")
     tiffcrop -R "$(rotate)" "$TMPFILE_PAGE"
     
