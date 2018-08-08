@@ -17,7 +17,7 @@ beep
 # libtiff-tools (tiff2pdf, tiffcp)
 
 # contrast and despeckle removes noise in mostly white documents and result in much smaller PDF size
-SCAN_SETTINGS="--mode color -x 210 -y 297 --contrast 16 --brightness 6 --swdeskew=yes --swcrop=yes --swdespeck=yes --despeck 1 --resolution 150"
+SCAN_SETTINGS="--mode color -l 2 -t 2 -x 210 -y 297 --contrast 16 --brightness 6 --swdeskew=yes --swcrop=yes --swdespeck=yes --despeck 1 --resolution 150"
 #SCAN_SETTINGS="--mode color -x 210 -y 297 --contrast 0 --brightness 0 --swdeskew=yes --swcrop=no --swdespeck=no --resolution 1200 --lamp-off-scan=yes"
 
 # JPEG compression (-j) with quality (-q) 85 produces good quality at acceptable size, too small quality values can produce artefacts
@@ -57,7 +57,8 @@ scanNextPage() {
     #TODO Get tesseract to run while the scanner runs. May require a total rewrite to replace scanimage and use pyinsane instead.
     tesseract "$TMPFILE_PAGE" - -psm 0 > "$TMPFILE_TESSERACT"
     rotate=$(grep -oP '(?<=Rotate: ).*' "$TMPFILE_TESSERACT")
-    tiffcrop -R "$rotate" "$TMPFILE_PAGE"
+    tiffcrop -R "$rotate" "$TMPFILE_PAGE" "$TMPFILE_PAGE"tmp
+    mv "$TMPFILE_PAGE"tmp "$TMPFILE_PAGE"
     
     tiff2pdf $PDF_SETTINGS -t "$PDF_TITLE" -F -o "$TMPFILE_PAGE_PDF" "$TMPFILE_PAGE" >> "$INSANED_LOGFILE" 2>&1
     
