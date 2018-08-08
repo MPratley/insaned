@@ -1,4 +1,4 @@
-Insaned cloud scanning on raspberry pi
+SANE cloud scanning on raspberry pi
 ======================================
 
 ORIGINAL Insaned PROJECT [HERE](https://github.com/abusenius/insaned)
